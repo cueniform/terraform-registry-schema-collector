@@ -11,6 +11,7 @@ missing_text: strings.Join(missing, "\n")
 #Version: {
 	provider: string | *#Missing
 	version:  string | *#Missing
+	...
 }
 
 versions: [_]: #Version
