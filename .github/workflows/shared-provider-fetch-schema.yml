@@ -1,0 +1,105 @@
+name: shared/provider/fetch-schema
+
+"on":
+  workflow_call:
+    inputs:
+      working_directory:
+        required: true
+        type: string
+      provider:
+        required: true
+        type: string
+
+env:
+  TF_IN_AUTOMATION: yes it is
+  TF_INPUT: 0
+
+jobs:
+  fetch_provider_schema:
+    name: Fetch provider schema
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.3.7
+          terraform_wrapper: false
+      - name: Setup CUE
+        uses: cue-lang/setup-cue@0be332bb74c8a2f07821389447ba3163e2da3bfb
+        with:
+          version: latest
+      - name: Get provider schema
+        working-directory: ${{ inputs.working_directory }}
+        env:
+          PROVIDER: ${{ inputs.provider }}
+          DIRECTORY: ${{ inputs.working_directory }}
+        run: |
+          set -x
+          set -euo pipefail
+          # cd $DIRECTORY
+          VERSIONS="$(cue export cueniform.com/collector/control/providers/$PROVIDER:metadata -e missing_text --out text)"
+          for V in $VERSIONS; do
+            # Set up the environment
+            export SCHEMA="${V}.schema.json"
+            export ZSCHEMA="$SCHEMA.zstd"
+            T="$(mktemp -d --tmpdir=.)"
+            cd "$T"
+            # Do the work
+            ## Assemble the terraform input files
+            cue export cueniform.com/collector/control:template -e provider_tf.out \
+              --inject provider_version="$V" --inject provider_identifier="$PROVIDER" \
+              --outfile "provider.tf.json"
+            cue export cueniform.com/collector/control:template -e lockfile_hcl.out \
+              --inject provider_version="$V" --inject provider_identifier="$PROVIDER" \
+              --outfile ".terraform.lockfile.hcl" --out text
+            ## Download the provider plugin
+            terraform init -input=false -no-color
+            ## Extract & compress the schema
+            terraform providers schema -json >"$SCHEMA"
+            zstd --ultra -22 "$SCHEMA" -o "$ZSCHEMA"
+            # Assemble the metadata
+            ## Checksum the schema and compressed schema
+            sha512sum "$SCHEMA"  | cut -f1 -d ' ' >meta.schema.raw.sha512.txt
+            sha512sum "$ZSCHEMA" | cut -f1 -d ' ' >meta.schema.compressed.sha512.txt
+            echo "zstd" >meta.schema.compressed.format.txt
+            ## Extract terraform version information
+            terraform version -json >meta.terraform.json
+            ## Serialise environmental information
+            date -uIs > meta.timestamp.txt
+            printenv GITHUB_SHA >meta.github.trigger.commit.txt
+            printenv GITHUB_WORKFLOW_SHA >meta.github.workflow.commit.txt
+            printenv GITHUB_WORKFLOW_REF >meta.github.workflow.ref.txt
+            printenv SCHEMA >meta.schema.raw.filename.txt
+            printenv ZSCHEMA >meta.schema.compressed.filename.txt
+            printenv PROVIDER >meta.schema.compressed.filename.txt
+            stat --printf %s "$SCHEMA"  > meta.schema.raw.size.bytes.txt
+            stat --printf %s "$ZSCHEMA" > meta.schema.compressed.size.bytes.txt
+            ## Store the metadata
+            cue export cueniform.com/collector/control:template -e metadata.out \
+              -l 'metadata:' -l 'input:' \
+              -l 'strings.Join(strings.Split(path.Base(filename),".")[1:strings.Count(path.Base(filename),".")],".")' \
+              --with-context meta.* \
+              --inject "provider_version=$V" --inject "provider_identifier=$PROVIDER" \
+              --outfile new-metadata.cue
+            # Move important files into place
+            cd ..
+            mv -i "$T/$ZSCHEMA" .
+            cat "$T/new-metadata.cue" >>metadata.cue
+            cue fmt metadata.cue
+            # Store everything in git
+            ## Set up git
+            git config --global user.name 'Terraform Registry Schema Collector [bot]'
+            git config --global user.email 'not-a-real-email-address@cueniform.com'
+            ## git add some files
+            git add "$ZSCHEMA"
+            git add metadata.cue
+            git commit -m "Collected schema: providers/$PROVIDER version ${V}"
+            git push
+            find "$T" -type f -ls
+            rm -rf "$T"
+          done

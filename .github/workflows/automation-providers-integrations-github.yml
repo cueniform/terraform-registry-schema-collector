@@ -1,0 +1,17 @@
+name: providers/integrations/github
+
+"on":
+  workflow_dispatch:
+  push:
+    branches: [automation/providers/integrations/github]
+    paths:       [control/providers/integrations/github/**]
+
+jobs:
+  fetch_schema:
+    uses: cueniform/terraform-registry-schema-collector/.github/workflows/shared-provider-fetch-schema.yml@main
+    with:
+      working_directory: schemata/providers/integrations/github
+      provider: integrations/github
+    permissions:
+      actions: read
+      contents: write
