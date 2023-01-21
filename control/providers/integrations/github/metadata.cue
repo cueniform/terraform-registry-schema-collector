@@ -16,8 +16,6 @@ missing_text: strings.Join(missing, "\n")
 versions: [_]: #Version
 versions: metadata & {
 	"5.14.0": {}
-	"5.13.0": {}
-	"5.12.0": {}
 }
 
 missing: [
