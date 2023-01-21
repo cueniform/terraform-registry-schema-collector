@@ -1,5 +1,9 @@
 package template
 
+import (
+	"strings"
+)
+
 provider_version:    string @tag(provider_version)
 provider_identifier: string @tag(provider_identifier)
 
@@ -19,7 +23,7 @@ provider_identifier: string @tag(provider_identifier)
 "lockfile_hcl": {
 	out: """
 provider "registry.terraform.io/\(provider_identifier)" {
-  version     = "\(provider_version)"
+  version = "\(provider_version)"
 }
 
 """
@@ -27,20 +31,25 @@ provider "registry.terraform.io/\(provider_identifier)" {
 
 metadata: {
 	input: {
-		terraform: {
+		terraform: txtfiles.terraform & {
 			terraform_version: string
 		}
-		timestamp:                      string
-		"github.trigger.commit":        string
-		"github.workflow.commit":       string
-		"github.workflow.ref":          string
-		"schema.raw.filename":          string
-		"schema.raw.size.bytes":        string // not int, as it comes from a .txt file
-		"schema.raw.sha512":            string
-		"schema.compressed.filename":   string
-		"schema.compressed.size.bytes": string // ditto raw.size.bytes
-		"schema.compressed.format":     string
-		"schema.compressed.sha512":     string
+		for k, v in txtfiles if k != "terraform" {
+			"\(k)": strings.TrimSpace(v)
+		}
+		txtfiles: {
+			timestamp:                      string
+			"github.trigger.commit":        string
+			"github.workflow.commit":       string
+			"github.workflow.ref":          string
+			"schema.raw.filename":          string
+			"schema.raw.size.bytes":        string // not int, as it comes from a .txt file
+			"schema.raw.sha512":            string
+			"schema.compressed.filename":   string
+			"schema.compressed.size.bytes": string // ditto raw.size.bytes
+			"schema.compressed.format":     string
+			"schema.compressed.sha512":     string
+		}
 	}
 
 	out: {

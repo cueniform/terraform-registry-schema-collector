@@ -76,12 +76,11 @@ jobs:
             printenv GITHUB_WORKFLOW_REF >meta.github.workflow.ref.txt
             printenv SCHEMA >meta.schema.raw.filename.txt
             printenv ZSCHEMA >meta.schema.compressed.filename.txt
-            printenv PROVIDER >meta.schema.compressed.filename.txt
             stat --printf %s "$SCHEMA"  > meta.schema.raw.size.bytes.txt
             stat --printf %s "$ZSCHEMA" > meta.schema.compressed.size.bytes.txt
             ## Store the metadata
             cue export cueniform.com/collector/control:template -e metadata.out \
-              -l 'metadata:' -l 'input:' \
+              -l 'metadata:' -l 'input:' -l 'txtfiles:' \
               -l 'strings.Join(strings.Split(path.Base(filename),".")[1:strings.Count(path.Base(filename),".")],".")' \
               --with-context meta.* \
               --inject "provider_version=$V" --inject "provider_identifier=$PROVIDER" \
