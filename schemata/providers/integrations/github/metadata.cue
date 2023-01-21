@@ -99,3 +99,36 @@ package metadata
 		}
 	}
 }
+"5.11.0": {
+	provider: "integrations/github"
+	version:  "5.11.0"
+	created: {
+		at: "2023-01-21T22:15:09+00:00"
+		by: {
+			terraform: {
+				terraform_version: "1.3.7"
+				platform:          "linux_amd64"
+				provider_selections: "registry.terraform.io/integrations/github": "5.11.0"
+				terraform_outdated: false
+			}
+			commit: {
+				trigger:      "3fcc81d7e72e86728161cf5569a6fbcb041aec39"
+				workflow_sha: "3fcc81d7e72e86728161cf5569a6fbcb041aec39"
+				workflow_ref: "cueniform/terraform-registry-schema-collector/.github/workflows/automation-providers-integrations-github.yml@refs/heads/automation/providers/integrations/github"
+			}
+		}
+	}
+	contents: {
+		raw: {
+			filename: "5.11.0.schema.json"
+			bytes:    "68590"
+			sha512:   "7fe0f886e7a7d169527bb377326b9275dcddf7505844694cb5d1a107e46b1b7f52dcd14b2b1dd63f2db9f264cb9f5fe001c7c5049c2e3e8beba4a2070f01112b"
+		}
+		compressed: {
+			filename: "5.11.0.schema.json.zstd"
+			format:   "zstd"
+			bytes:    "5294"
+			sha512:   "63cdcef2c8da65194aa66114129843cb05c75ae60f997ea80f6ffcb924854e5f1e42eed9afd41c48dc770dad39114f7253b1e5aab625d42f67513d8fe461636f"
+		}
+	}
+}
