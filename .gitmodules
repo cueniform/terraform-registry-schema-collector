@@ -1,0 +1,4 @@
+[submodule "self"]
+	path = self
+	url = https://github.com/cueniform/terraform-registry-schema-collector
+	branch = main
