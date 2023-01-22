@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       actions: read
-      contents: write
+      contents: read
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -36,12 +36,26 @@ jobs:
         with:
           version: latest
       - name: Get provider schema
-        working-directory: ${{ inputs.working_directory }}
+        #working-directory: ${{ inputs.working_directory }}
         env:
           PROVIDER: ${{ inputs.provider }}
           DIRECTORY: ${{ inputs.working_directory }}
         run: |
           set -x
+          git submodule update --remote --depth=1
+
+          echo "# INSIDE CHECKOUT"
+          ls -l
+          git log --oneline
+          git show-ref
+          echo "# INSIDE self"
+          cd self
+          ls -l
+          git log --oneline
+          git show-ref
+
+          exit 1
+
           set -euo pipefail
           # cd $DIRECTORY
           VERSIONS="$(cue export cueniform.com/collector/control/providers/$PROVIDER:metadata -e missing_text --out text)"

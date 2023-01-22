@@ -8,10 +8,10 @@ name: providers/integrations/github
 
 jobs:
   fetch_schema:
-    uses: cueniform/terraform-registry-schema-collector/.github/workflows/shared-provider-fetch-schema.yml@main
+    uses: cueniform/terraform-registry-schema-collector/.github/workflows/shared-provider-fetch-schema.yml@automation/providers/integrations/github
     with:
       working_directory: schemata/providers/integrations/github
       provider: integrations/github
     permissions:
       actions: read
-      contents: write
+      contents: read
