@@ -198,3 +198,36 @@ package metadata
 		}
 	}
 }
+"5.10.0": {
+	provider: "integrations/github"
+	version:  "5.10.0"
+	created: {
+		at: "2023-01-22T12:03:05+00:00"
+		by: {
+			terraform: {
+				terraform_version: "1.3.7"
+				platform:          "linux_amd64"
+				provider_selections: "registry.terraform.io/integrations/github": "5.10.0"
+				terraform_outdated: false
+			}
+			commit: {
+				trigger:      "87882d75eb374a5925986ebb4e34c03ad50746e6"
+				workflow_sha: "87882d75eb374a5925986ebb4e34c03ad50746e6"
+				workflow_ref: "cueniform/terraform-registry-schema-collector/.github/workflows/automation-providers-integrations-github.yml@refs/heads/automation/providers/integrations/github"
+			}
+		}
+	}
+	contents: {
+		raw: {
+			filename: "5.10.0.schema.json"
+			bytes:    "67849"
+			sha512:   "7832747943ea2c3f303b5b211149ffcb2694abd5cb89ef09db3e32d8a2ee5c936794d9476515005a70b835d50a60ce18c77349ca6940d03bf1c65f1ddd73327e"
+		}
+		compressed: {
+			filename: "5.10.0.schema.json.zstd"
+			format:   "zstd"
+			bytes:    "5254"
+			sha512:   "caffa746564b7559a3ba2e4a79e3872bf15094489e28c343fea2f2a1db2711a91eacb563a342bba3585e784b619d5eb23e929b7631f33ff72b6a08bd8e17c29b"
+		}
+	}
+}
